@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SwiftClean App</title>
+    <title>SwiftClean Portal</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
+        body { -webkit-tap-highlight-color: transparent; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
+        input, textarea { user-select: text; -webkit-user-select: text; }
         .nav-btn.active { color: #0ea5e9; border-bottom: 3px solid #0ea5e9; }
+        .service-card.active { border-color: #0ea5e9; background-color: #f0f9ff; transform: scale(0.98); }
+        .qty-btn { width: 36px; height: 36px; border-radius: 10px; background: #e2e8f0; font-weight: bold; }
         .status-pill { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        /* Hide number input arrows */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-up { animation: fadeUp 0.4s ease-out forwards; }
     </style>
 </head>
-<body class="bg-gray-50 pb-32">
+<body class="bg-gray-50 pb-40">
 
-    <header class="bg-white p-6 pt-10 text-center rounded-b-[2rem] shadow-sm">
+    <header class="bg-white p-6 pt-10 text-center rounded-b-[2rem] shadow-sm animate-up">
         <img src="logo.jpg" class="w-20 h-20 mx-auto rounded-full shadow-md mb-2">
         <h1 class="text-xl font-black text-gray-800 uppercase">SwiftClean</h1>
         <div class="flex justify-center gap-8 mt-4 border-t pt-4">
@@ -24,17 +31,17 @@
     </header>
 
     <main id="view-book" class="max-w-md mx-auto p-5 space-y-6">
-        <section class="bg-white p-6 rounded-3xl shadow-sm">
-            <input type="text" id="cust-name" placeholder="Your Name" class="w-full p-4 bg-gray-50 border rounded-2xl mb-3 outline-none">
-            <input type="tel" id="cust-phone" placeholder="Phone Number" class="w-full p-4 bg-gray-50 border rounded-2xl mb-3 outline-none">
-            <textarea id="location-desc" placeholder="Location in Thika" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none"></textarea>
+        <section class="bg-white p-6 rounded-3xl shadow-sm animate-up">
+            <input type="text" id="cust-name" placeholder="Your Name" class="w-full p-4 bg-gray-50 border rounded-2xl mb-3 outline-none focus:border-blue-500">
+            <input type="tel" id="cust-phone" placeholder="Phone Number" class="w-full p-4 bg-gray-50 border rounded-2xl mb-3 outline-none focus:border-blue-500">
+            <textarea id="location-desc" placeholder="Description of location (e.g., Section 9, Hse 30)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:border-blue-500"></textarea>
         </section>
-        <div id="services-master" class="space-y-6"></div>
+        <div id="services-master" class="space-y-6 animate-up"></div>
     </main>
 
     <main id="view-track" class="hidden max-w-md mx-auto p-5 space-y-6">
-        <section class="bg-white p-6 rounded-3xl shadow-sm">
-            <h2 class="font-bold mb-4">Search your order</h2>
+        <section class="bg-white p-6 rounded-3xl shadow-sm animate-up">
+            <h2 class="font-bold mb-4">Check Order Status</h2>
             <div class="flex gap-2">
                 <input type="tel" id="search-phone" placeholder="Enter Phone Number" class="flex-1 p-4 bg-gray-50 border rounded-2xl outline-none">
                 <button onclick="trackOrder()" class="bg-blue-600 text-white px-6 rounded-2xl font-bold">🔍</button>
@@ -43,16 +50,29 @@
         <div id="track-results" class="space-y-4"></div>
     </main>
 
-    <div id="footer-book" class="fixed bottom-0 left-0 right-0 bg-white border-t p-6 shadow-2xl z-50">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div><p class="text-[10px] text-gray-400 font-bold">TOTAL</p><p id="total-price" class="text-2xl font-black text-blue-600">Ksh 0</p></div>
-            <button id="submit-btn" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black">BOOK NOW</button>
+    <div id="footer-book" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t p-6 shadow-2xl z-50 rounded-t-[2rem]">
+        <div class="max-w-md mx-auto space-y-3">
+            <div class="flex items-center justify-between">
+                <div><p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total estimated</p><p id="total-price" class="text-2xl font-black text-blue-600">Ksh 0</p></div>
+                <button id="submit-btn" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg hover:scale-105 active:scale-95 transition-all">BOOK NOW</button>
+            </div>
+            <p class="text-[9px] text-center text-gray-400 font-medium italic">*Note: Final prices confirmed at pick-up.</p>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
         let cart = {};
+
+        // STATUS MAPPING for customer view
+        const STATUS_MAP = {
+            '🟡 PENDING': { text: 'PENDING', bg: 'bg-yellow-100 text-yellow-700' },
+            '🧼 IN LAUNDRY': { text: 'IN LAUNDRY', bg: 'bg-blue-100 text-blue-700' },
+            '✅ RETURNED': { text: 'RETURNED', bg: 'bg-green-100 text-green-700' },
+            '📦 PICKED UP': { text: 'PICKED UP', bg: 'bg-indigo-100 text-indigo-700' },
+            '❌ CANCELLED': { text: 'CANCELLED', bg: 'bg-red-100 text-red-700' }
+        };
+
         function showTab(tab) {
             document.getElementById('view-book').classList.toggle('hidden', tab !== 'book');
             document.getElementById('view-track').classList.toggle('hidden', tab !== 'track');
@@ -61,38 +81,163 @@
             document.getElementById('tab-track').classList.toggle('active', tab === 'track');
         }
 
+        // Initialize Services from Config
+        document.addEventListener('DOMContentLoaded', () => {
+            const cfg = window.config;
+            if(!cfg) return;
+            const master = document.getElementById('services-master');
+            cfg.categories.forEach(cat => {
+                let html = `<div class="mb-6 animate-up"><h3 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 px-2">${cat.name}</h3><div class="grid gap-3">`;
+                cat.items.forEach(item => {
+                    html += `
+                        <div id="card-${item.id}" class="service-card bg-white p-5 rounded-3xl border shadow-sm transition-all" onclick="toggleItem('${item.id}')">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-gray-800 block">${item.name}</span>
+                                    <span class="text-[10px] text-blue-500 font-bold uppercase">${item.note ? item.note : item.price + '/-'}</span>
+                                </div>
+                                <div id="qty-ctrl-${item.id}" class="hidden flex items-center gap-3" onclick="event.stopPropagation()">
+                                    <button onclick="changeQty('${item.id}', -1)" class="qty-btn">-</button>
+                                    <input type="number" id="qty-val-${item.id}" value="1" min="1" class="font-bold text-lg text-gray-800 w-10 text-center bg-transparent" onchange="updateQtyInput('${item.id}')">
+                                    <button onclick="changeQty('${item.id}', 1)" class="qty-btn">+</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                master.innerHTML += html + `</div></div>`;
+            });
+        });
+
+        function findItem(id) { 
+            for (let cat of window.config.categories) { 
+                let found = cat.items.find(i => i.id === id); if (found) return found; 
+            } 
+        }
+
+        function toggleItem(id) {
+            const item = findItem(id);
+            if (cart[id]) {
+                delete cart[id];
+                document.getElementById(`card-${id}`).classList.remove('active');
+                document.getElementById(`qty-ctrl-${id}`).classList.add('hidden');
+            } else {
+                cart[id] = 1;
+                document.getElementById(`card-${id}`).classList.add('active');
+                if (item.type === 'qty') document.getElementById(`qty-ctrl-${id}`).classList.remove('hidden');
+            }
+            updateTotal();
+        }
+
+        function changeQty(id, delta) {
+            cart[id] = Math.max(1, (cart[id] || 1) + delta);
+            document.getElementById(`qty-val-${id}`).value = cart[id];
+            updateTotal();
+        }
+
+        function updateQtyInput(id) {
+            cart[id] = Math.max(1, parseInt(document.getElementById(`qty-val-${id}`).value) || 1);
+            updateTotal();
+        }
+
+        // --- COMPLEX CALCULATION LOGIC ---
+        function updateTotal() {
+            let total = 0;
+            for (let id in cart) {
+                const item = findItem(id);
+                let qty = cart[id];
+
+                // Rule 1: Standard Laundry (5kg Tier)
+                if (id === 'weight-std') {
+                    if (qty <= 5) total += (qty * 70);
+                    else total += (qty * 50);
+                } 
+                // Rule 2: Shoes (3+ pairs offer)
+                else if (id === 'shoes') {
+                    if (qty >= 3) total += (qty * 85);
+                    else total += (qty * 90);
+                }
+                // Rule 3: Mattress (Low range estimation)
+                else if (id === 'mattress') {
+                    total += 1000; // Customer sees 1000, final confirmed at pickup
+                }
+                // Rule 4: Normal
+                else {
+                    total += (item.price * qty);
+                }
+            }
+            document.getElementById('total-price').textContent = `Ksh ${total}`;
+        }
+
+        // --- BOOKING LOGIC ---
+        document.getElementById('submit-btn').addEventListener('click', async function() {
+            const btn = this;
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const loc = document.getElementById('location-desc').value;
+            const tot = document.getElementById('total-price').textContent;
+
+            if(!name || !phone || !loc || Object.keys(cart).length === 0) return alert("Please fill details and select items.");
+
+            btn.textContent = "SENDING...";
+            btn.disabled = true;
+
+            let summary = Object.keys(cart).map(id => `${findItem(id).name} (x${cart[id]})`).join(", ");
+            
+            // Log to spreadsheet
+            const url = `${window.config.webAppUrl}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&estate=${encodeURIComponent(loc)}&services=${encodeURIComponent(summary)}&totalPrice=${encodeURIComponent(tot)}`;
+            fetch(url, { mode: 'no-cors' });
+            
+            setTimeout(() => {
+                // Formatting WhatsApp message
+                const msg = `*NEW ORDER - SWIFTCLEAN*\n---------------------------\n*Client:* ${name}\n*Phone:* ${phone}\n*Location:* ${loc}\n\n*Items:* ${summary}\n*Total (Est):* Ksh ${tot}\n\n*Payment: M-Pesa Till ${window.config.paymentDetails.tillNumber} (BWIRI LAUNDRY SOLUTIONS)*\n\n_Note: Final prices confirmed at pick-up._\n---------------------------`;
+                window.location.href = `https://wa.me/${window.config.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+                
+                setTimeout(() => {
+                    btn.textContent = "BOOK NOW";
+                    btn.disabled = false;
+                }, 2000);
+            }, 1500);
+        });
+
+        // --- TRACKING LOGIC ---
         async function trackOrder() {
             const phone = document.getElementById('search-phone').value;
             const container = document.getElementById('track-results');
             if(!phone) return alert("Enter your phone number");
             
-            container.innerHTML = "<p class='text-center text-gray-400 animate-pulse'>Searching database...</p>";
+            container.innerHTML = "<p class='text-center text-gray-400 animate-pulse'>Searching...</p>";
             
             try {
                 const response = await fetch(`${window.config.webAppUrl}?action=track&phone=${phone}`);
                 const data = await response.json();
                 
                 if(data.length === 0) {
-                    container.innerHTML = "<div class='bg-orange-50 p-6 rounded-2xl text-center text-orange-700 font-bold'>No orders found for this number.</div>";
+                    container.innerHTML = "<div class='bg-orange-50 p-6 rounded-3xl text-center text-orange-700 font-bold'>No orders found.</div>";
                     return;
                 }
 
-                container.innerHTML = data.map(order => `
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] font-bold text-gray-400">${order.date}</span>
-                            <span class="status-pill ${order.status.includes('READY') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${order.status}</span>
+                container.innerHTML = data.map(order => {
+                    const statusInfo = STATUS_MAP[order.status] || { text: order.status, bg: 'bg-gray-100 text-gray-700' };
+                    // We only show Estimated if Final is empty
+                    const displayPrice = order.finalPrice && order.finalPrice !== "0" && order.finalPrice !== "" 
+                                        ? `Ksh ${order.finalPrice}` 
+                                        : `Ksh ${order.total} (Est.)`;
+
+                    return `
+                        <div class="bg-white p-5 rounded-3xl border shadow-sm animate-up">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold text-gray-400">${order.date}</span>
+                                <span class="status-pill ${statusInfo.bg}">${statusInfo.text}</span>
+                            </div>
+                            <p class="text-sm font-bold text-gray-800">${order.services}</p>
+                            <p class="text-blue-600 font-black mt-2 text-right">${displayPrice}</p>
                         </div>
-                        <p class="text-sm font-bold text-gray-800">${order.services}</p>
-                        <p class="text-blue-600 font-black mt-2 text-right">Ksh ${order.total}</p>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) {
-                container.innerHTML = "<p class='text-red-500'>Error connecting to system.</p>";
+                container.innerHTML = "<p class='text-red-500'>Connection error.</p>";
             }
         }
-        
-        // ... Keep your existing toggleItem, changeQty, and submit-btn logic from the previous index.html ...
     </script>
 </body>
 </html>
