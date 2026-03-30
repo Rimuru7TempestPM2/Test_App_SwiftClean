@@ -8,7 +8,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "1000129100.jpg",
+      "src": "logo.jpg",
       "sizes": "1024x1024",
       "type": "image/jpeg",
       "purpose": "any maskable"
