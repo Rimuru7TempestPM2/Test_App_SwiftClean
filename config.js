@@ -41,10 +41,10 @@ const BusinessConfig = {
             name: "🧼 Professional Cleaning",
             items: [
                 { id: "shoes", name: "Shoes Cleaning", price: 90, type: "qty", note: "3+ pairs @85/-" },
-                { id: "sofa", name: "Sofa Cleaning", price: 450, type: "qty", note: "Price per seater" },
-                { id: "carpet", name: "Carpet/Matt Cleaning", price: 500, type: "qty", note: "+ Free Doormat" },
-                { id: "mattress", name: "Mattress Cleaning", price: 0, type: "qty", note: "Estimated 1000/- - 1500/-" },
-                { id: "bed-deep", name: "Bed Deep Cleaning", price: 800, type: "qty", note: "Vacuum & Sanitization" }
+                { id: "sofa", name: "Sofa Cleaning", price: 450, type: "qty", unit: "seater", note: "Price per seater" },
+                { id: "carpet", name: "Carpet/Matt Cleaning", price: 500, type: "qty", unit: "unit", note: "+ Free Doormat" },
+                { id: "mattress", name: "Mattress Cleaning", price: 0, type: "qty", unit: "unit", note: "Estimated 1000/- - 1500/-" },
+                { id: "bed-deep", name: "Bed Deep Cleaning", price: 800, type: "qty", unit: "unit", note: "Vacuum & Sanitization" }
             ]
         },
         {
