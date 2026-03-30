@@ -22,7 +22,7 @@ const BusinessConfig = {
             name: "🧺 Laundry Services",
             items: [
                 { id: "weight-std", name: "Standard Laundry", price: 70, type: "qty", note: "Below 5kg @70/- | Above 5kg @50/-" },
-                { id: "weight-exp", name: "Express Laundry", price: 90, type: "qty", note: "Ready same day" },
+                { id: "weight-exp", name: "Express Laundry", price: 90, type: "qty", unit: "kg", note: "Ready same day" },
                 { id: "single-cloth", name: "Single Cloth Wash", price: 50, type: "qty" }
             ]
         },
@@ -30,9 +30,9 @@ const BusinessConfig = {
             name: "🛌 Duvets & Bedding",
             items: [
                 { id: "blanket", name: "Normal Blanket", price: 200, type: "qty" },
-                { id: "s-duvet", name: "Small Duvet (4x6)", price: 300, type: "qty", note: "+ Free Bedsheet & Pillowcase" },
-                { id: "m-duvet", name: "Medium Duvet (5x6)", price: 350, type: "qty", note: "+ Free Bedsheet & Pillowcase" },
-                { id: "l-duvet", name: "Large Duvet (6x6)", price: 450, type: "qty", note: "+ Free Bedsheet & Pillowcase" },
+                { id: "s-duvet", name: "Small Duvet (4x6)", price: 300, type: "qty", unit: "unit", note: "+ Free Bedsheet & Pillowcase" },
+                { id: "m-duvet", name: "Medium Duvet (5x6)", price: 350, type: "qty", unit: "unit", note: "+ Free Bedsheet & Pillowcase" },
+                { id: "l-duvet", name: "Large Duvet (6x6)", price: 450, type: "qty", unit: "unit", note: "+ Free Bedsheet & Pillowcase" },
                 { id: "l-basket", name: "Laundry Basket (Large)", price: 460, type: "qty" },
                 { id: "s-basket", name: "Laundry Basket (Small)", price: 360, type: "qty" }
             ]
