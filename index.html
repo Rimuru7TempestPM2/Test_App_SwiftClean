@@ -82,32 +82,35 @@
         }
 
         // Initialize Services from Config
-        document.addEventListener('DOMContentLoaded', () => {
-            const cfg = window.config;
-            if(!cfg) return;
-            const master = document.getElementById('services-master');
-            cfg.categories.forEach(cat => {
-                let html = `<div class="mb-6 animate-up"><h3 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 px-2">${cat.name}</h3><div class="grid gap-3">`;
-                cat.items.forEach(item => {
-                    html += `
-                        <div id="card-${item.id}" class="service-card bg-white p-5 rounded-3xl border shadow-sm transition-all" onclick="toggleItem('${item.id}')">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="font-bold text-gray-800 block">${item.name}</span>
-                                    <span class="text-[10px] text-blue-500 font-bold uppercase">${item.note ? item.note : item.price + '/-'}</span>
-                                </div>
-                                <div id="qty-ctrl-${item.id}" class="hidden flex items-center gap-3" onclick="event.stopPropagation()">
-                                    <button onclick="changeQty('${item.id}', -1)" class="qty-btn">-</button>
-                                    <input type="number" id="qty-val-${item.id}" value="1" min="1" class="font-bold text-lg text-gray-800 w-10 text-center bg-transparent" onchange="updateQtyInput('${item.id}')">
-                                    <button onclick="changeQty('${item.id}', 1)" class="qty-btn">+</button>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-                master.innerHTML += html + `</div></div>`;
-            });
-        });
+      document.addEventListener('DOMContentLoaded', () => {
+    const master = document.getElementById('services-master');
+    window.config.categories.forEach(cat => {
+        let html = `<div class="space-y-3">
+            <h3 class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-2">${cat.name}</h3>`;
+        cat.items.forEach(item => {
+            // STRATEGIC FIX: Show Price AND Note if both exist
+            const priceDisplay = item.price > 0 ? `${item.price}/-` : "";
+            const noteDisplay = item.note ? item.note : "";
+            const secondaryText = (priceDisplay && noteDisplay) ? `${priceDisplay} • ${noteDisplay}` : (priceDisplay || noteDisplay || "Price on Request");
 
+            html += `
+                <div id="card-${item.id}" class="service-card bg-white p-5 rounded-[1.8rem] border border-gray-100 shadow-sm transition-all" onclick="toggleItem('${item.id}')">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <span class="font-bold text-gray-800 text-sm block">${item.name}</span>
+                            <span class="text-[10px] text-blue-500 font-bold uppercase tracking-tight">${secondaryText}</span>
+                        </div>
+                        <div id="qty-ctrl-${item.id}" class="hidden flex items-center gap-3" onclick="event.stopPropagation()">
+                            <button onclick="changeQty('${item.id}', -1)" class="qty-btn">-</button>
+                            <span id="qty-val-${item.id}" class="font-black text-gray-800 text-lg w-6 text-center">1</span>
+                            <button onclick="changeQty('${item.id}', 1)" class="qty-btn">+</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        master.innerHTML += html + `</div>`;
+    });
+});
         function findItem(id) { 
             for (let cat of window.config.categories) { 
                 let found = cat.items.find(i => i.id === id); if (found) return found; 
